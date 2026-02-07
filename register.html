@@ -16,26 +16,26 @@
         <form onsubmit="event.preventDefault(); alert('注册申请已提交！请等待管理员审核。'); window.location.href='index.html';">
             <div class="form-group">
                 <label>姓名 (中文)</label>
-                <input type="text" placeholder="例如：陈小明" required>
+                <input type="text" placeholder="例如：陈小明" required value="陈伟杰">
             </div>
 
             <div class="form-group">
                 <label>父亲姓名 (用于关联)</label>
                 <div style="display: flex; gap: 10px;">
-                    <input type="text" placeholder="输入父亲名字搜索" style="flex: 1;">
-                    <button type="button" class="btn" style="width: auto; margin: 0; padding: 0 15px;" onclick="alert('模拟搜索：找到 [陈二叔 (第2世)]')">🔍</button>
+                    <input type="text" placeholder="输入父亲名字搜索" style="flex: 1;" value="陈建国">
+                    <button type="button" class="btn" style="width: auto; margin: 0; padding: 0 15px;" onclick="alert('模拟搜索：找到 [陈建国 (第19世)]')">🔍</button>
                 </div>
-                <small style="color: green; display: none;" id="father-found">✅ 已找到：陈二叔 (第2世)</small>
+                <small style="color: green; display: block; margin-top: 5px;" id="father-found">✅ 已预选：陈建国 (第19世)</small>
             </div>
 
             <div class="form-group">
                 <label>辈分 (世)</label>
-                <input type="number" placeholder="例如：19" required>
+                <input type="number" placeholder="例如：19" required value="20">
             </div>
 
             <div class="form-group">
                 <label>出生年份</label>
-                <input type="number" placeholder="YYYY" required>
+                <input type="number" placeholder="YYYY" required value="1995">
             </div>
 
             <div class="form-group">
@@ -45,12 +45,13 @@
 
             <div class="form-group">
                 <label>联系电话</label>
-                <input type="tel" placeholder="012-3456789" required>
+                <input type="tel" placeholder="012-3456789" required value="012-3456789">
             </div>
 
             <div class="form-group">
                 <label>上传照片</label>
-                <div style="border: 2px dashed #ccc; padding: 20px; text-align: center; border-radius: 8px; color: #999;">
+                <div style="border: 2px dashed #ccc; padding: 20px; text-align: center; border-radius: 8px; color: #999; cursor: pointer;">
+                    <span style="font-size: 2rem;">👤</span><br>
                     点击上传头像
                 </div>
             </div>
