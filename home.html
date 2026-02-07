@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>陈氏族谱 - 首页</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="tree.css">
     <script src="data.js" defer></script>
     <script src="script.js" defer></script>
 </head>
@@ -23,13 +24,20 @@
 
         <!-- View Toggle -->
         <div style="text-align: right; margin-bottom: 15px; font-size: 0.9rem;">
-            <span style="font-weight: bold; color: var(--primary-color);">卡片模式</span> | 
-            <span style="color: #999;">树状图</span>
+            <button id="btn-card" onclick="switchView('card')" style="font-weight: bold; border:none; background:none; color: var(--primary-color); cursor:pointer;">卡片模式</button> | 
+            <button id="btn-tree" onclick="switchView('tree')" style="color: #999; border:none; background:none; cursor:pointer;">树状图</button>
         </div>
 
-        <!-- Member List -->
+        <!-- Member List (Card View) -->
         <div id="member-list">
             <!-- Populated by JS -->
+        </div>
+
+        <!-- Tree View (Hidden by default) -->
+        <div id="tree-view-container" style="display: none; overflow-x: auto; padding-bottom: 20px;">
+            <div class="tree" id="tree-root">
+                <!-- Tree rendered here -->
+            </div>
         </div>
 
         <!-- Bottom Actions -->
