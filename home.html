@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陈氏族谱 - 首页</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="data.js" defer></script>
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>陈氏家族</h1>
+            <div style="font-size: 0.9rem; color: #666;">您好, 陈小明 (第3代)</div>
+        </header>
+
+        <!-- Search / Filter -->
+        <div style="margin-bottom: 20px; display: flex;">
+            <input type="text" placeholder="🔍 搜索族人..." style="flex: 1; border-radius: 4px 0 0 4px;">
+            <button style="width: auto; padding: 10px 15px; background: var(--primary-color); color: white; border: none; border-radius: 0 4px 4px 0;">搜</button>
+        </div>
+
+        <!-- View Toggle -->
+        <div style="text-align: right; margin-bottom: 15px; font-size: 0.9rem;">
+            <span style="font-weight: bold; color: var(--primary-color);">卡片模式</span> | 
+            <span style="color: #999;">树状图</span>
+        </div>
+
+        <!-- Member List -->
+        <div id="member-list">
+            <!-- Populated by JS -->
+        </div>
+
+        <!-- Bottom Actions -->
+        <div style="position: fixed; bottom: 20px; right: 20px;">
+            <button onclick="alert('添加新成员功能')" style="background: var(--primary-color); color: white; width: 50px; height: 50px; border-radius: 50%; font-size: 24px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">+</button>
+        </div>
+    </div>
+</body>
+</html>
