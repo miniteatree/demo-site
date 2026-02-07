@@ -171,8 +171,13 @@
             const lines = input.split('\n');
             let count = 0;
             lines.forEach(line => {
-                if (!line.trim()) return;
-                const parsed = parseLine(line);
+                const trimmed = line.trim();
+                if (!trimmed) return;
+                
+                // Skip Markdown Table Headers or Separators (e.g., "|---|")
+                if (trimmed.includes('---')) return;
+
+                const parsed = parseLine(trimmed);
                 if (parsed) {
                     deliveries.push(parsed);
                     count++;
@@ -185,6 +190,42 @@
         }
 
         function parseLine(text) {
+            // Check for Pipe Separated (Markdown Table)
+            // Example: | NAME | IC | PHONE | ADDRESS |
+            if (text.includes('|')) {
+                // Split by pipe and remove empty parts (leading/trailing pipes)
+                const parts = text.split('|').map(p => p.trim()).filter(p => p !== "");
+                
+                // We expect at least 3 parts: Name, IC, Phone. Address might be 4th.
+                if (parts.length >= 3) {
+                    let name = parts[0];
+                    let ic = parts[1];
+                    let phone = parts[2];
+                    let address = parts[3] || "";
+
+                    // Fix Phone (Excel error missing '0' at start)
+                    // Remove non-digit chars to check start
+                    const phoneDigits = phone.replace(/[^0-9]/g, '');
+                    if (phoneDigits.startsWith('1') && phoneDigits.length >= 8) {
+                        // It's likely missing a 0. But we want to preserve format if possible?
+                        // Actually better to just prepend 0 to the raw string if it starts with 1
+                        if (phone.startsWith('1')) {
+                            phone = '0' + phone;
+                        }
+                    }
+
+                    return {
+                        id: Date.now() + Math.random(),
+                        name: name,
+                        ic: ic,
+                        phone: phone,
+                        address: address,
+                        done: false,
+                        raw: text
+                    };
+                }
+            }
+
             // "NAME IC PHONE ADDRESS"
             // Example: OOI SIEW IM 560227-07-5716 164053644 9 Tingkat TEMBUSU Sungai PUYU 13020 Butterworth
             
