@@ -165,9 +165,11 @@
 
     <h1>📦 Delivery List 派送单</h1>
     
-    <!-- Stats Header -->
-    <div id="stats-bar" style="background: #e0f2fe; color: #0369a1; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold; font-size: 1.1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-        Loading stats...
+    <div id="stats-bar" style="background: #e0f2fe; color: #0369a1; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <span id="stats-text">Loading stats...</span>
+        <button onclick="shareText()" style="background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+            📤 Share List
+        </button>
     </div>
 
     <div class="input-section">
@@ -343,7 +345,7 @@
 
         function renderList() {
             const container = document.getElementById('listContainer');
-            const statsBar = document.getElementById('stats-bar');
+            const statsText = document.getElementById('stats-text');
             
             container.innerHTML = '';
 
@@ -352,7 +354,9 @@
             const pending = total - doneCount;
 
             // Update Stats
-            statsBar.innerHTML = `Total: ${total} &nbsp;|&nbsp; Done: ${doneCount} &nbsp;|&nbsp; Left: ${pending}`;
+            if(statsText) {
+                statsText.innerHTML = `Total: ${total} &nbsp;|&nbsp; Done: ${doneCount} &nbsp;|&nbsp; Left: ${pending}`;
+            }
 
             if (total === 0) {
                 container.innerHTML = '<div class="empty-state">No items yet. Paste your list above!</div>';
@@ -434,6 +438,54 @@
 
         function saveData() {
             localStorage.setItem('deliveryList', JSON.stringify(deliveries));
+        }
+
+        function generateText() {
+            // Get pending items
+            const pendingItems = deliveries.filter(d => !d.done).sort((a, b) => (a.displayId || 0) - (b.displayId || 0));
+
+            if (pendingItems.length === 0) {
+                return null;
+            }
+
+            let text = `📦 *Delivery List (${pendingItems.length} pending)*\n\n`;
+            
+            pendingItems.forEach((item) => {
+                text += `*#${item.displayId || '?'} ${item.name}*\n`;
+                if(item.phone) text += `📞 ${item.phone}\n`;
+                if(item.address) {
+                    text += `📍 ${item.address}\n`;
+                    const encoded = encodeURIComponent(item.address);
+                    // Short Google Maps link
+                    text += `🗺️ https://maps.google.com/?q=${encoded}\n`;
+                }
+                text += `-------------------\n`;
+            });
+            return text;
+        }
+
+        async function shareText() {
+            const text = generateText();
+            if(!text) {
+                alert("No pending items to share!");
+                return;
+            }
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Delivery List',
+                        text: text
+                    });
+                } catch(err) { console.log('Share error', err); }
+            } else {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    alert("List copied to clipboard! Paste it anywhere.");
+                } catch(err) {
+                    alert("Failed to copy. Please select manually.");
+                }
+            }
         }
     </script>
 </body>
