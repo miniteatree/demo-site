@@ -189,11 +189,14 @@
             // Example: OOI SIEW IM 560227-07-5716 164053644 9 Tingkat TEMBUSU Sungai PUYU 13020 Butterworth
             
             const icRegex = /\b\d{6}-?\d{2}-?\d{4}\b/;
-            // Phone regex: 
-            // 1. Starts with 01 (normal): 01x-xxxxxxx (9-10-11 digits)
-            // 2. Starts with 1 (excel error): 1x-xxxxxxx (8-9-10 digits)
-            // Matches 1xxxxxxxxx (9-10 digits) or 01xxxxxxxx (10-11 digits)
-            const phoneRegex = /\b(01\d{8,9}|1\d{8,9})\b/; 
+            
+            // Refined Phone Regex:
+            // - Handles "01x-xxxxxxx" or "01xxxxxxxx"
+            // - Handles "1x-xxxxxxx" or "1xxxxxxxx" (missing leading 0)
+            // - Handles optional dashes
+            // Group 1 matches the prefix (01x or 1x)
+            // Group 2 matches the rest
+            const phoneRegex = /\b((?:01\d|1\d)(?:-?\d{7,8}))\b/; 
             
             let name = "Unknown";
             let ic = "";
@@ -221,7 +224,6 @@
                     }
 
                     // Address extraction
-                    // Since we modified phone, we need to find the RAW phone string in 'rest'
                     const phoneIndex = rest.indexOf(rawPhone);
                     if (phoneIndex !== -1) {
                         address = rest.substring(phoneIndex + rawPhone.length).trim();
@@ -248,6 +250,9 @@
                 name = text;
                 address = "";
             }
+
+            // Cleanup Address: remove leading commas, dashes, or weird merged chars
+            address = address.replace(/^[\s,.\-]+/, '').trim();
 
             return {
                 id: Date.now() + Math.random(),
