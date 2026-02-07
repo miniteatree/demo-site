@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>陈氏族谱 - 登录</title>
     <link rel="stylesheet" href="style.css">
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById("username").value;
+            
+            if (username === "admin") {
+                window.location.href = 'admin.html';
+            } else {
+                window.location.href = 'home.html';
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="container" style="text-align: center; padding-top: 50px;">
@@ -12,17 +24,19 @@
         <p>传承千年 薪火相传</p>
         
         <div style="margin-top: 40px;">
-            <div class="form-group" style="text-align: left;">
-                <label for="username">姓名 / 手机号</label>
-                <input type="text" id="username" placeholder="请输入姓名">
-            </div>
-            <div class="form-group" style="text-align: left;">
-                <label for="password">密码</label>
-                <input type="password" id="password" placeholder="******">
-            </div>
-            
-            <button onclick="window.location.href='home.html'" class="btn">登 录</button>
-            <button onclick="window.location.href='register.html'" class="btn btn-secondary">注 册 新 会 员</button>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group" style="text-align: left;">
+                    <label for="username">姓名 / 手机号</label>
+                    <input type="text" id="username" placeholder="请输入姓名 (测试管理员: admin)">
+                </div>
+                <div class="form-group" style="text-align: left;">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" placeholder="******">
+                </div>
+                
+                <button type="submit" class="btn">登 录</button>
+                <button type="button" onclick="window.location.href='register.html'" class="btn btn-secondary">注 册 新 会 员</button>
+            </form>
         </div>
         
         <footer style="margin-top: 50px; font-size: 0.8rem; color: #999;">

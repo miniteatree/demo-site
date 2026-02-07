@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陈氏族谱 - 注册新会员</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 注册新会员</h1>
+            <p style="color: #666; font-size: 0.9rem;">请填写真实资料以供审核</p>
+        </header>
+
+        <form onsubmit="event.preventDefault(); alert('注册申请已提交！请等待管理员审核。'); window.location.href='index.html';">
+            <div class="form-group">
+                <label>姓名 (中文)</label>
+                <input type="text" placeholder="例如：陈小明" required>
+            </div>
+
+            <div class="form-group">
+                <label>父亲姓名 (用于关联)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" placeholder="输入父亲名字搜索" style="flex: 1;">
+                    <button type="button" class="btn" style="width: auto; margin: 0; padding: 0 15px;" onclick="alert('模拟搜索：找到 [陈二叔 (第2世)]')">🔍</button>
+                </div>
+                <small style="color: green; display: none;" id="father-found">✅ 已找到：陈二叔 (第2世)</small>
+            </div>
+
+            <div class="form-group">
+                <label>辈分 (世)</label>
+                <input type="number" placeholder="例如：19" required>
+            </div>
+
+            <div class="form-group">
+                <label>出生年份</label>
+                <input type="number" placeholder="YYYY" required>
+            </div>
+
+            <div class="form-group">
+                <label>籍贯</label>
+                <input type="text" value="福建永春" disabled style="background: #eee; color: #666;">
+            </div>
+
+            <div class="form-group">
+                <label>联系电话</label>
+                <input type="tel" placeholder="012-3456789" required>
+            </div>
+
+            <div class="form-group">
+                <label>上传照片</label>
+                <div style="border: 2px dashed #ccc; padding: 20px; text-align: center; border-radius: 8px; color: #999;">
+                    点击上传头像
+                </div>
+            </div>
+
+            <button type="submit" class="btn">提交申请</button>
+            <button type="button" class="btn btn-secondary" onclick="window.history.back()">返回登录</button>
+        </form>
+    </div>
+</body>
+</html>

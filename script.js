@@ -2,8 +2,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Determine which page we're on by checking elements
     const memberList = document.getElementById("member-list");
     const detailView = document.getElementById("detail-view");
+    const adminMemberList = document.getElementById("admin-member-list");
 
-    if (detailView) {
+    if (adminMemberList) {
+        // Admin Page Logic is handled inline in admin.html for simplicity in this prototype
+        // But we can move it here if needed later.
+        renderAdminList();
+    } else if (detailView) {
         const params = new URLSearchParams(window.location.search);
         const memberId = params.get("id");
         if (memberId) {
@@ -93,4 +98,36 @@ function renderDetail(id) {
     `;
 
     detail.innerHTML = html;
+}
+
+function renderAdminList() {
+    const tbody = document.getElementById("admin-member-list");
+    if (!tbody) return;
+
+    tbody.innerHTML = ""; // Clear existing
+
+    familyData.forEach(member => {
+        const fatherName = member.fatherId 
+            ? (familyData.find(m => m.id === member.fatherId)?.name || '未知') 
+            : '-';
+        
+        const tr = document.createElement("tr");
+        tr.style.borderBottom = "1px solid #eee";
+        tr.innerHTML = `
+            <td style="padding: 12px;">#${member.id}</td>
+            <td style="padding: 12px; font-weight: bold;">${member.name}</td>
+            <td style="padding: 12px;">第 ${member.generation} 世</td>
+            <td style="padding: 12px;">${fatherName}</td>
+            <td style="padding: 12px;">
+                <span style="padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; background: ${member.status === 'alive' ? '#e8f5e9' : '#eceff1'}; color: ${member.status === 'alive' ? '#2e7d32' : '#546e7a'};">
+                    ${member.status === 'alive' ? '在世' : '已故'}
+                </span>
+            </td>
+            <td style="padding: 12px; text-align: right;">
+                <button class="btn" style="width: auto; display: inline-block; padding: 5px 10px; font-size: 0.8rem; margin-right: 5px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="alert('编辑 ID: ${member.id}')">✏️</button>
+                <button class="btn" style="width: auto; display: inline-block; padding: 5px 10px; font-size: 0.8rem; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="if(confirm('确定删除吗？')) alert('已删除')">🗑️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
