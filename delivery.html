@@ -182,6 +182,14 @@
         // Store data in localStorage
         let deliveries = JSON.parse(localStorage.getItem('deliveryList')) || [];
 
+        // Migration: Ensure all items have a displayId (for existing data)
+        if (deliveries.length > 0 && typeof deliveries[0].displayId === 'undefined') {
+            deliveries.forEach((item, index) => {
+                item.displayId = index + 1;
+            });
+            saveData();
+        }
+
         // Initial render
         renderList();
 
@@ -191,6 +199,10 @@
 
             const lines = input.split('\n');
             let count = 0;
+            
+            // Find max current displayId to continue numbering
+            let maxId = deliveries.reduce((max, item) => Math.max(max, item.displayId || 0), 0);
+
             lines.forEach(line => {
                 const trimmed = line.trim();
                 if (!trimmed) return;
@@ -200,6 +212,8 @@
 
                 const parsed = parseLine(trimmed);
                 if (parsed) {
+                    maxId++;
+                    parsed.displayId = maxId; // Assign permanent ID
                     deliveries.push(parsed);
                     count++;
                 }
@@ -348,8 +362,7 @@
             // Sort: Pending first, Done last
             deliveries.sort((a, b) => a.done - b.done);
 
-            deliveries.forEach((item, index) => {
-                const displayIndex = index + 1;
+            deliveries.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = `card ${item.done ? 'done' : ''}`;
                 
@@ -368,7 +381,7 @@
                 card.innerHTML = `
                     <div class="card-header">
                         <div class="name-group">
-                            <span class="index-badge">#${displayIndex}</span>
+                            <span class="index-badge">#${item.displayId || '?'}</span>
                             <div>
                                 <div class="name">${item.name}</div>
                                 ${item.ic ? `<span class="ic">IC: ${item.ic}</span>` : ''}
