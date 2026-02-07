@@ -413,6 +413,11 @@
                         <button class="btn done-toggle" onclick="toggleDone(${item.id})">
                             ${item.done ? '↩️ Mark Undone' : '✅ Mark Done'}
                         </button>
+                        
+                        <!-- Single Share Button -->
+                         <button class="btn" onclick="shareSingle(${item.id})" style="background:#64748b; color:white; grid-column: 1 / -1; margin-top:5px;">
+                            📤 Share Item
+                        </button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -484,6 +489,37 @@
                     alert("List copied to clipboard! Paste it anywhere.");
                 } catch(err) {
                     alert("Failed to copy. Please select manually.");
+                }
+            }
+        }
+        async function shareSingle(id) {
+            const item = deliveries.find(d => d.id === id);
+            if (!item) return;
+
+            let text = `📦 *Delivery #${item.displayId || '?'}*\n`;
+            text += `👤 ${item.name}\n`;
+            if (item.ic) text += `💳 IC: ${item.ic}\n`;
+            if (item.phone) text += `📞 ${item.phone}\n`;
+            text += `📍 ${item.address}\n`;
+            
+            if (item.address) {
+                const encoded = encodeURIComponent(item.address);
+                text += `🗺️ https://maps.google.com/?q=${encoded}`;
+            }
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: `Delivery #${item.displayId}`,
+                        text: text
+                    });
+                } catch(err) { console.log('Share error', err); }
+            } else {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    alert("Item copied to clipboard!");
+                } catch(err) {
+                    alert("Failed to copy.");
                 }
             }
         }
