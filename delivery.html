@@ -87,7 +87,7 @@
         .actions {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
         }
         .btn {
             display: flex;
@@ -96,17 +96,22 @@
             padding: 10px;
             border-radius: 8px;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             border: none;
             cursor: pointer;
             transition: transform 0.1s;
+            text-align: center;
         }
         .btn:active { transform: scale(0.98); }
         
         .btn-call { background: #eff6ff; color: #2563eb; }
         .btn-wa { background: #dcfce7; color: #16a34a; }
-        .btn-map { background: #fff7ed; color: #ea580c; }
+        
+        /* Specific Map Button Colors */
+        .btn-google { background: #fff7ed; color: #ea580c; }
+        .btn-apple { background: #f3f4f6; color: #1f2937; }
+        .btn-waze { background: #e0f2fe; color: #0369a1; }
         
         .done-toggle {
             grid-column: 1 / -1;
@@ -146,7 +151,7 @@
     
     <div class="input-section">
         <label style="display:block; margin-bottom:8px; font-weight:bold; color:#475569;">Paste Data Here (One per line):</label>
-        <textarea id="rawInput" placeholder="e.g. OOI SIEW IM 560227-07-5716 0164053644 9 Tingkat TEMBUSU..."></textarea>
+        <textarea id="rawInput" placeholder="e.g. OOI SIEW IM 560227-07-5716 164053644 9 Tingkat TEMBUSU..."></textarea>
         <button class="add-btn" onclick="processInput()">+ Add to List</button>
     </div>
 
@@ -177,18 +182,18 @@
             saveData();
             document.getElementById('rawInput').value = '';
             renderList();
-            
-            if(count > 0) {
-                // Optional toast or feedback could go here
-            }
         }
 
         function parseLine(text) {
             // "NAME IC PHONE ADDRESS"
-            // Example: OOI SIEW IM 560227-07-5716 0164053644 9 Tingkat TEMBUSU Sungai PUYU 13020 Butterworth
+            // Example: OOI SIEW IM 560227-07-5716 164053644 9 Tingkat TEMBUSU Sungai PUYU 13020 Butterworth
             
             const icRegex = /\b\d{6}-?\d{2}-?\d{4}\b/;
-            const phoneRegex = /(01\d{8,9})/; 
+            // Phone regex: 
+            // 1. Starts with 01 (normal): 01x-xxxxxxx (9-10-11 digits)
+            // 2. Starts with 1 (excel error): 1x-xxxxxxx (8-9-10 digits)
+            // Matches 1xxxxxxxxx (9-10 digits) or 01xxxxxxxx (10-11 digits)
+            const phoneRegex = /\b(01\d{8,9}|1\d{8,9})\b/; 
             
             let name = "Unknown";
             let ic = "";
@@ -200,35 +205,46 @@
 
             if (icMatch) {
                 ic = icMatch[0];
-                // Assume Name is everything before IC
                 const parts = text.split(ic);
                 name = parts[0].trim();
                 
                 let rest = parts[1] || "";
                 
                 if (phoneMatch) {
-                    phone = phoneMatch[0];
-                    // If phone is in the rest part
-                    if (rest.includes(phone)) {
-                        const phoneIndex = rest.indexOf(phone);
-                        address = rest.substring(phoneIndex + phone.length).trim();
+                    let rawPhone = phoneMatch[0];
+                    
+                    // Fix Excel missing '0'
+                    if (rawPhone.startsWith('1')) {
+                        phone = '0' + rawPhone;
                     } else {
-                        // Phone was before IC? Unlikely but possible
+                        phone = rawPhone;
+                    }
+
+                    // Address extraction
+                    // Since we modified phone, we need to find the RAW phone string in 'rest'
+                    const phoneIndex = rest.indexOf(rawPhone);
+                    if (phoneIndex !== -1) {
+                        address = rest.substring(phoneIndex + rawPhone.length).trim();
+                    } else {
                         address = rest.trim();
                     }
                 } else {
                     address = rest.trim();
                 }
             } else if (phoneMatch) {
-                // No IC found, try splitting by phone
-                phone = phoneMatch[0];
-                const parts = text.split(phone);
+                // No IC, just Phone
+                let rawPhone = phoneMatch[0];
+                if (rawPhone.startsWith('1')) {
+                    phone = '0' + rawPhone;
+                } else {
+                    phone = rawPhone;
+                }
+                
+                const parts = text.split(rawPhone);
                 name = parts[0].trim();
                 address = parts[1] ? parts[1].trim() : "";
             } else {
-                // Fallback: entire line is name? or address?
-                // Let's assume entire line is name if short, address if long?
-                // For now just keep raw text as name
+                // Fallback
                 name = text;
                 address = "";
             }
@@ -267,7 +283,10 @@
                     waLink = `https://wa.me/${p}`;
                 }
 
-                const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address)}`;
+                const addrEncoded = encodeURIComponent(item.address);
+                const googleMap = `https://www.google.com/maps/search/?api=1&query=${addrEncoded}`;
+                const wazeMap = `https://waze.com/ul?q=${addrEncoded}`;
+                const appleMap = `http://maps.apple.com/?q=${addrEncoded}`;
 
                 card.innerHTML = `
                     <div class="card-header">
@@ -279,14 +298,20 @@
                     </div>
                     
                     <div class="details">
-                        ${item.phone ? `<div style="margin-bottom:6px; font-weight:500;">📞 ${item.phone}</div>` : ''}
+                        ${item.phone ? `<div style="margin-bottom:6px; font-weight:500;">📞 <a href="tel:${item.phone}" style="color:inherit;text-decoration:none;">${item.phone}</a></div>` : ''}
                         <div class="address">📍 ${item.address}</div>
                     </div>
 
                     <div class="actions">
                         ${item.phone ? `<a href="tel:${item.phone}" class="btn btn-call">Call</a>` : '<div></div>'}
                         ${item.phone ? `<a href="${waLink}" target="_blank" class="btn btn-wa">WhatsApp</a>` : '<div></div>'}
-                        <a href="${mapLink}" target="_blank" class="btn btn-map">Map</a>
+                        
+                        <!-- Map Buttons Group -->
+                        <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 5px;">
+                            <a href="${googleMap}" target="_blank" class="btn btn-google">Google</a>
+                            <a href="${appleMap}" target="_blank" class="btn btn-apple">Apple</a>
+                            <a href="${wazeMap}" target="_blank" class="btn btn-waze">Waze</a>
+                        </div>
                         
                         <button class="btn done-toggle" onclick="toggleDone(${item.id})">
                             ${item.done ? '↩️ Mark Undone' : '✅ Mark Done'}
