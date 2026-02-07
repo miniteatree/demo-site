@@ -78,6 +78,22 @@
             align-items: flex-start;
             margin-bottom: 8px;
         }
+        .name-group {
+            display: flex;
+            align-items: flex-start;
+        }
+        .index-badge {
+            background: #e2e8f0;
+            color: #475569;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 8px;
+            margin-top: 2px;
+            min-width: 20px;
+            text-align: center;
+        }
         .name { font-weight: bold; font-size: 1.1rem; color: #0f172a; }
         .ic { font-size: 0.85rem; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; }
         
@@ -149,6 +165,11 @@
 
     <h1>📦 Delivery List 派送单</h1>
     
+    <!-- Stats Header -->
+    <div id="stats-bar" style="background: #e0f2fe; color: #0369a1; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold; font-size: 1.1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        Loading stats...
+    </div>
+
     <div class="input-section">
         <label style="display:block; margin-bottom:8px; font-weight:bold; color:#475569;">Paste Data Here (One per line):</label>
         <textarea id="rawInput" placeholder="e.g. OOI SIEW IM 560227-07-5716 164053644 9 Tingkat TEMBUSU..."></textarea>
@@ -308,17 +329,27 @@
 
         function renderList() {
             const container = document.getElementById('listContainer');
+            const statsBar = document.getElementById('stats-bar');
+            
             container.innerHTML = '';
 
-            if (deliveries.length === 0) {
+            const total = deliveries.length;
+            const doneCount = deliveries.filter(d => d.done).length;
+            const pending = total - doneCount;
+
+            // Update Stats
+            statsBar.innerHTML = `Total: ${total} &nbsp;|&nbsp; Done: ${doneCount} &nbsp;|&nbsp; Left: ${pending}`;
+
+            if (total === 0) {
                 container.innerHTML = '<div class="empty-state">No items yet. Paste your list above!</div>';
                 return;
             }
 
-            // Sort: Pending first
+            // Sort: Pending first, Done last
             deliveries.sort((a, b) => a.done - b.done);
 
-            deliveries.forEach(item => {
+            deliveries.forEach((item, index) => {
+                const displayIndex = index + 1;
                 const card = document.createElement('div');
                 card.className = `card ${item.done ? 'done' : ''}`;
                 
@@ -336,9 +367,12 @@
 
                 card.innerHTML = `
                     <div class="card-header">
-                        <div>
-                            <div class="name">${item.name}</div>
-                            ${item.ic ? `<span class="ic">IC: ${item.ic}</span>` : ''}
+                        <div class="name-group">
+                            <span class="index-badge">#${displayIndex}</span>
+                            <div>
+                                <div class="name">${item.name}</div>
+                                ${item.ic ? `<span class="ic">IC: ${item.ic}</span>` : ''}
+                            </div>
                         </div>
                         <button class="delete-btn" onclick="deleteItem(${item.id})">&times;</button>
                     </div>
